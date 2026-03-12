@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clinical Evidence Explorer</title>
+<style>
+  :root {
+    --bg: #f6f8fb;
+    --panel: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --line: #dbe3ee;
+    --accent: #0f766e;
+    --accent-2: #2563eb;
+    --soft: #eef6ff;
+    --chip: #eef2f7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  h1 {
+    margin: 0 0 6px 0;
+    font-size: 30px;
+  }
+  .subtitle {
+    color: var(--muted);
+    margin-bottom: 18px;
+    line-height: 1.45;
+  }
+  .hero {
+    background: linear-gradient(135deg, #ffffff, #eef7f6);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 8px 24px rgba(19, 36, 67, 0.06);
+    margin-bottom: 18px;
+  }
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .kpi {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .kpi .n {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent-2);
+  }
+  .kpi .lab {
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .section {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 24px rgba(19, 36, 67, 0.04);
+  }
+  .section h2 {
+    margin-top: 0;
+    margin-bottom: 6px;
+    font-size: 22px;
+  }
+  .section p.desc {
+    color: var(--muted);
+    margin-top: 0;
+    line-height: 1.45;
+  }
+  .filters {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 12px;
+    margin: 14px 0 10px 0;
+  }
+  input, select {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 12px;
+    background: #fff;
+    font-size: 14px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    background: #fff;
+  }
+  .card h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 10px 0;
+  }
+  .chip {
+    font-size: 12px;
+    padding: 5px 9px;
+    background: var(--chip);
+    border-radius: 999px;
+    color: #334155;
+  }
+  .small {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .study-count {
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th, td {
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    padding: 10px 8px;
+    vertical-align: top;
+  }
+  th {
+    background: #fbfdff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  .table-wrap {
+    max-height: 520px;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  .matrix-wrap {
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  .num {
+    text-align: center;
+    font-weight: 700;
+    border-radius: 8px;
+  }
+  .n0 { color: #94a3b8; }
+  .n1 { background: #e8f1ff; color: #1d4ed8; }
+  .n2 { background: #dff5ef; color: #0f766e; }
+  .n3 { background: #fff0cf; color: #a16207; }
+  .n4 { background: #fde7e7; color: #b91c1c; }
+  details {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    background: #fff;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .study {
+    border-top: 1px dashed var(--line);
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+  a {
+    color: var(--accent-2);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .pill {
+    display: inline-block;
+    background: var(--soft);
+    color: var(--accent-2);
+    border-radius: 999px;
+    padding: 3px 8px;
+    font-size: 12px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+  .footer {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 14px;
+  }
+  @media (max-width: 980px) {
+    .kpis, .summary-grid, .filters {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>Clinical Evidence Explorer</h1>
+    <div class="subtitle">
+      This version is fully translated into English. It preserves the <b>full study-level detail</b>,
+      keeps all <b>URLs/DOIs/NCT links</b>, and organizes the information in three reading layers:
+      <b>overview</b>, <b>metabolite-focused synthesis</b>, and <b>full evidence drill-down</b>.
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="n">13</div><div class="lab">Metabolites</div></div>
+      <div class="kpi"><div class="n">36</div><div class="lab">Clinical evidence records</div></div>
+      <div class="kpi"><div class="n">8</div><div class="lab">Clinical domains</div></div>
+      <div class="kpi"><div class="n">37</div><div class="lab">URLs preserved</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>1) Overview matrix</h2>
+    <p class="desc">Quickly shows where evidence is concentrated. Counts are study records per metabolite and clinical domain.</p>
+    <div class="matrix-wrap">
+      <table id="matrixTable">
+        <thead>
+          <tr>
+            <th>Metabolite</th>
+            <th>Cancer / oncology</th><th>Cardiovascular</th><th>Immune / oxidative stress</th><th>Infection / respiratory</th><th>Metabolic / aging</th><th>Neurological / aging</th><th>Oral / mucosal</th><th>Other</th>
+          </tr>
+        </thead>
+        <tbody id="matrixBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>2) Metabolite evidence cards</h2>
+    <p class="desc">A readable middle layer: one card per metabolite, with domains and representative conditions.</p>
+    <div class="filters">
+      <input id="searchBox" type="text" placeholder="Search metabolite, condition, study title, or keyword">
+      <select id="metaboliteFilter"><option value="">All metabolites</option></select>
+      <select id="domainFilter"><option value="">All clinical domains</option></select>
+    </div>
+    <div class="summary-grid" id="cardGrid"></div>
+  </div>
+
+  <div class="section">
+    <h2>3) Full evidence drill-down</h2>
+    <p class="desc">This section preserves the detailed interpretation and every original URL.</p>
+    <div id="accordion"></div>
+  </div>
+
+  <div class="section">
+    <h2>4) Complete study table</h2>
+    <p class="desc">Filterable table with direct links to all studies.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Metabolite</th>
+            <th>Clinical domain</th>
+            <th>Condition</th>
+            <th>Study title</th>
+            <th>Reported effect</th>
+            <th>URLs</th>
+          </tr>
+        </thead>
+        <tbody id="detailTable"></tbody>
+      </table>
+    </div>
+    <div class="footer">Built from the uploaded file <i>Metabolite.docx</i>. Suitable as a supplementary HTML file, manuscript companion, or interactive lab output.</div>
+  </div>
+
+</div>
+
+<script>
+const studies = [{"metabolite": "Ascorbic acid", "study_title": "NCT00329498", "condition": "Acute myeloid leukemia (AML)", "details": "Encouraging antileukemic activity in refractory patients. In vitro L-ascorbic acid may enhance leukemic cell colony growth.", "short_detail": "Encouraging antileukemic activity in refractory patients. In vitro L-ascorbic acid may enhance leukemic cell colony growth.", "domain": "Cancer / oncology", "urls": ["https://clinicaltrials.gov/study/NCT00329498"]}, {"metabolite": "Ascorbic acid", "study_title": "NCT01050621", "condition": "Advanced cancers and hematologic malignancie", "details": "Is associated with improved patient quality of life and possible indications of disease stabilization when traditional chemotherapy alone exhibits suboptimal efficacy.", "short_detail": "Is associated with improved patient quality of life and possible indications of disease stabilization when traditional chemo…", "domain": "Cancer / oncology", "urls": ["https://clinicaltrials.gov/study/NCT01050621"]}, {"metabolite": "Ascorbic acid", "study_title": "High-Dose Parenteral Ascorbate Enhanced Chemosensitivity of Ovarian Cancer and Reduced Toxicity of Chemotherapy", "condition": "Stage III/IV ovarian cancer", "details": "Pro-oxidant effects by mediating hydrogen peroxide formation, which kills cancer cells.", "short_detail": "Pro-oxidant effects by mediating hydrogen peroxide formation, which kills cancer cells.", "domain": "Cancer / oncology", "urls": ["https://doi.org/10.1126/scitranslmed.3007154"]}, {"metabolite": "Ascorbic acid", "study_title": "Feasibility of Vitamin C in the Treatment of Post Viral Fatigue with Focus on Long COVID, Based on a Systematic Review of IV Vitamin C on Fatigue, NCT00633581", "condition": "Fatigue symptoms related with oxidative stress and inflammation", "details": "Antioxidant properties may help ameliorate fatigue and improve subjective energy levels.", "short_detail": "Antioxidant properties may help ameliorate fatigue and improve subjective energy levels.", "domain": "Immune / oxidative stress", "urls": ["https://doi.org/10.3390/nu13041154", "https://clinicaltrials.gov/study/NCT00633581"]}, {"metabolite": "Ascorbic acid", "study_title": "NCT06152458", "condition": "Non-viral septic shock", "details": "Synergistic effect of the combinated vitamin therapy regimen including vitamin C, thiamine, and hydrocortisone.", "short_detail": "Synergistic effect of the combinated vitamin therapy regimen including vitamin C, thiamine, and hydrocortisone.", "domain": "Infection / respiratory", "urls": ["https://clinicaltrials.gov/study/NCT06152458"]}, {"metabolite": "Allicin", "study_title": "Allicin and Cancer Hallmarks", "condition": "Stage II oral submucous fibrosis (OSF).", "details": "The administration of allicin combined with triamcinolone showed considerable clinical improvements in mouth opening and relief of the burning sensation, suggesting that the molecule acts as a therapeutic adjuvant with a favorable safety profile and positive effects in this pathology.", "short_detail": "The administration of allicin combined with triamcinolone showed considerable clinical improvements in mouth opening and rel…", "domain": "Oral / mucosal", "urls": ["https://www.mdpi.com/1420-3049/29/6/1320"]}, {"metabolite": "Allicin", "study_title": "A Narrative Review of Oxidative Stress and Liver Disease in Pregnancy: The Role of Antioxidants", "condition": "Preeclampsia (risk in pregnant women).", "details": "The use of garlic tablets of allicin reduced inflammatory biomarkers (hs-CRP) and increased antioxidant (GSH) levels, supporting the ability of allicin to modulate oxidative stress and inflammation in patients at risk for preeclampsia.", "short_detail": "The use of garlic tablets of allicin reduced inflammatory biomarkers (hs-CRP) and increased antioxidant (GSH) levels, suppor…", "domain": "Immune / oxidative stress", "urls": ["https://doi.org/10.7759/cureus.64714"]}, {"metabolite": "Allicin", "study_title": "Traditional plants with antioxidant properties in clinical trials—A systematic review", "condition": "Hyperlipidemia and atherosclerosis in patients at cardiovascular risk.", "details": "Daily administration of allicin standardized treatment resulted in anti-atherosclerotic and cardioprotective effect, which positions allicin as a promising candidate in the prevention and treatment of cardiovascular diseases.", "short_detail": "Daily administration of allicin standardized treatment resulted in anti-atherosclerotic and cardioprotective effect, which p…", "domain": "Cardiovascular", "urls": ["https://www.mdpi.com/2076-3921/11/1/87"]}, {"metabolite": "Allicin", "study_title": "Therapeutic Potential of Allicin-Rich Garlic Preparations: Emphasis on Clinical Evidence toward Upcoming Drugs Formulation", "condition": "Recurrent aphthous ulcers in the oral cavity.", "details": "Oral treatment with allicin tablets showed a significant decrease in ulcer size and pain severity, with high tolerability, indicating that allicin is effective and safe for the management of recurrent aphthous ulcers.", "short_detail": "Oral treatment with allicin tablets showed a significant decrease in ulcer size and pain severity, with high tolerability, i…", "domain": "Oral / mucosal", "urls": ["https://www.mdpi.com/2076-3417/9/24/5555"]}, {"metabolite": "Allicin", "study_title": "NCT00455416", "condition": "Stage III/IV follicular lymphoma (FL)", "details": "Allicin could contribute to modulating the tumor microenvironment by reducing oxidative stress and enhancing tumor cell apoptosis.", "short_detail": "Allicin could contribute to modulating the tumor microenvironment by reducing oxidative stress and enhancing tumor cell apop…", "domain": "Cancer / oncology", "urls": ["https://clinicaltrials.gov/study/NCT00455416"]}, {"metabolite": "Allicin", "study_title": "Allicin, an Antioxidant and Neuroprotective Agent, Ameliorates Cognitive Impairment", "condition": "Genital warts in male population.", "details": "Allicin adhesive tablet therapy achieved lesion resolution rates comparable to cryotherapy, suggesting that allicin is an alternative therapeutic option, with good tolerability and positive effects in the management of genital warts.", "short_detail": "Allicin adhesive tablet therapy achieved lesion resolution rates comparable to cryotherapy, suggesting that allicin is an al…", "domain": "Infection / respiratory", "urls": ["https://www.mdpi.com/2076-3921/11/1/87"]}, {"metabolite": "Cysteine", "study_title": "NCT00254176", "condition": "Critically ill neonates with limited endogenous capacity for cysteine synthesis and consequential glutathione deficiency", "details": "Targeted cysteine supplementation can potentially ameliorate oxidative stress in critically ill neonates by boosting glutathione synthesis.", "short_detail": "Targeted cysteine supplementation can potentially ameliorate oxidative stress in critically ill neonates by boosting glutath…", "domain": "Immune / oxidative stress", "urls": ["https://clinicaltrials.gov/study/NCT00254176"]}, {"metabolite": "Cysteine", "study_title": "NCT03967665", "condition": "Acute leukemia undergoing unmanipulated haploidentical hematopoietic stem cell transplantation (HSCT)", "details": "NAcetyl-LCysteine may restore the normal function of endothelial cells, thus supporting its beneficial role as an adjunct therapy.", "short_detail": "NAcetyl-LCysteine may restore the normal function of endothelial cells, thus supporting its beneficial role as an adjunct th…", "domain": "Cancer / oncology", "urls": ["https://clinicaltrials.gov/study/NCT03967665"]}, {"metabolite": "Glutathione", "study_title": "NCT00266331", "condition": "skin reactions in breast cancer patients undergoing external beam radiation", "details": "Could decrease incidences of erythema and related skin toxicity.", "short_detail": "Could decrease incidences of erythema and related skin toxicity.", "domain": "Cancer / oncology", "urls": ["https://clinicaltrials.gov/study/NCT00266331"]}, {"metabolite": "Glutathione", "study_title": "NCT00506688", "condition": "Cystic Fibrosis Patients", "details": "Inhaled glutathione was safe and there were favorable changes in respiratory indices and inflammatory biomarkers.", "short_detail": "Inhaled glutathione was safe and there were favorable changes in respiratory indices and inflammatory biomarkers.", "domain": "Infection / respiratory", "urls": ["https://clinicaltrials.gov/study/NCT00506688"]}, {"metabolite": "Glycine", "study_title": "Glycine and N‐acetylcysteine (GlyNAC) supplementation in older adults improves glutathione deficiency, oxidative stress, mitochondrial dysfunction, inflammation, insulin resistance, endothelial dysfunction, genotoxicity, muscle strength, and cognition: Results of a pilot clinical trial", "condition": "Aging and its associated effects", "details": "Supplementation with GlyNAC (glycine and N-acetylcysteine) improved multiple aging-related parameters, including mitochondrial function, oxidative stress and insulin resistance, with no reported side effects.", "short_detail": "Supplementation with GlyNAC (glycine and N-acetylcysteine) improved multiple aging-related parameters, including mitochondri…", "domain": "Metabolic / aging", "urls": ["https://doi.org/10.1002/ctm2.372"]}, {"metabolite": "Glycine", "study_title": "A Randomized Controlled Clinical Trial in Healthy Older Adults to Determine Efficacy of Glycine and N-Acetylcysteine Supplementation on Glutathione Redox Status and Oxidative Damage", "condition": "Glutathione deficiency and oxidative stress in healthy older adults.", "details": "GlyNAC supplementation was safe and well tolerated. Although no significant changes in glutathione levels were observed in the general population, a subgroup with high oxidative stress showed improvements in glutathione generation.", "short_detail": "GlyNAC supplementation was safe and well tolerated. Although no significant changes in glutathione levels were observed in t…", "domain": "Immune / oxidative stress", "urls": ["https://doi.org/10.3389/fragi.2022.852569"]}, {"metabolite": "Glycine", "study_title": "Glycine increases fat-free mass in malnourished haemodialysis patients: a randomized double-blind crossover trial", "condition": "Malnutrition in hemodialysis patients", "details": "The administration of glycine significantly increased fat-free mass in malnourished patients undergoing hemodialysis, without adverse changes in bone mineral density.", "short_detail": "The administration of glycine significantly increased fat-free mass in malnourished patients undergoing hemodialysis, withou…", "domain": "Metabolic / aging", "urls": ["https://doi.org/10.1002/jcsm.12780"]}, {"metabolite": "Glycine", "study_title": "The effect of glycine administration on the characteristics of physiological systems in human adults: A systematic review", "condition": "Aging and neurological disorders", "details": "Glycine can improve psychiatric symptoms, especially in schizophrenia populations, and improve sleep quality in healthy adults.", "short_detail": "Glycine can improve psychiatric symptoms, especially in schizophrenia populations, and improve sleep quality in healthy adul…", "domain": "Neurological / aging", "urls": ["https://10.1007/s11357-023-00970-8"]}, {"metabolite": "Glycine", "study_title": "A whole food, plant-based diet reduces amino acid levels in patients with metastatic breast cancer", "condition": "Metastatic breast cancer", "details": "Participants reported improvements in perceived cognitive function, emotional well-being, and fatigue.", "short_detail": "Participants reported improvements in perceived cognitive function, emotional well-being, and fatigue.", "domain": "Cancer / oncology", "urls": ["https://doi.org/10.1186/s40170-024-00368-w"]}, {"metabolite": "Phenolic compounds", "study_title": "NCT01686282", "condition": "Postmenopausal women with pre‐ and stage 1 hypertension", "details": "Phenolic compounds can favorably modulate vascular function and prevent progression of early hypertension.", "short_detail": "Phenolic compounds can favorably modulate vascular function and prevent progression of early hypertension.", "domain": "Cardiovascular", "urls": ["https://clinicaltrials.gov/study/NCT01686282"]}, {"metabolite": "Phenolic compounds", "study_title": "NCT02520739", "condition": "Oxidative stress, inflammation and metabolic syndrome", "details": "May be valuable in the prevention of cardiovascular diseases owing to their vasodilatory and anti‐inflammatory actions.", "short_detail": "May be valuable in the prevention of cardiovascular diseases owing to their vasodilatory and anti‐inflammatory actions.", "domain": "Immune / oxidative stress", "urls": ["https://clinicaltrials.gov/study/NCT02520739"]}, {"metabolite": "Phenolic compounds", "study_title": "NCT03362996", "condition": "Mild cognitive impairment (MCI)", "details": "Phenolics may reduce oxidative stress and favorably influence neurodegenerative markers.", "short_detail": "Phenolics may reduce oxidative stress and favorably influence neurodegenerative markers.", "domain": "Neurological / aging", "urls": ["https://clinicaltrials.gov/study/NCT03362996"]}, {"metabolite": "Pyruvic acid", "study_title": "NCT00604331", "condition": "Severe heart failure and cardiogenic shock, conditions that may follow acute myocardial infarction", "details": "Intracoronary pyruvate appeared to yield measurable improvements in hemodynamic parameters in patients.", "short_detail": "Intracoronary pyruvate appeared to yield measurable improvements in hemodynamic parameters in patients.", "domain": "Cardiovascular", "urls": ["https://clinicaltrials.gov/study/NCT00604331"]}, {"metabolite": "Pyruvic acid", "study_title": "NCT04824365", "condition": "COVID-19 respiratory symptoms", "details": "Sodium pyruvate nasal spray is a safe and promising therapeutic option for managing COVID-19 respiratory symptoms by modulating host immune response.", "short_detail": "Sodium pyruvate nasal spray is a safe and promising therapeutic option for managing COVID-19 respiratory symptoms by modulat…", "domain": "Infection / respiratory", "urls": ["https://clinicaltrials.gov/study/NCT04824365"]}, {"metabolite": "Pyruvic acid", "study_title": "NCT04871815", "condition": "persistent post-COVID-19 symptoms “COVID-19 Long Haulers.”", "details": "Statistically significant improvements in headaches and respiratory difficulties.", "short_detail": "Statistically significant improvements in headaches and respiratory difficulties.", "domain": "Infection / respiratory", "urls": ["https://clinicaltrials.gov/study/NCT04871815"]}, {"metabolite": "Quercetin", "study_title": "Effect of onion (Allium cepa L.) peel extract on natural killer cell and cytokines in a randomized, double-blind, placebo-controlled trial", "condition": "Immune function", "details": "Supplementation with quercetin-rich onion skin extract produced a significant increase in NK cell activity and a favorable modulation of cytokine levels, suggesting that Allium quercetin may have a preventive and therapeutic effect in modulating the immune system in vulnerable subjects.", "short_detail": "Supplementation with quercetin-rich onion skin extract produced a significant increase in NK cell activity and a favorable m…", "domain": "Immune / oxidative stress", "urls": ["https://doi.org/10.4162/nrp.2024.18.1.33"]}, {"metabolite": "Quercetin", "study_title": "Quercetin as a Therapeutic Product: Evaluation of Its Pharmacological Action and Clinical Applications—A Review", "condition": "Obesity and body dysmetry", "details": "Supplementation with quercetin-rich onion peel extract resulted in a significant reduction in body fat percentage, decrease in BMI and reduction in waist circumference, indicating a positive effect on metabolism and body fat distribution in these patients.", "short_detail": "Supplementation with quercetin-rich onion peel extract resulted in a significant reduction in body fat percentage, decrease …", "domain": "Metabolic / aging", "urls": ["https://doi.org/10.3390/ph16111631"]}, {"metabolite": "Quercetin", "study_title": "Potential Role of Quercetin Glycosides as Anti-Atherosclerotic Food-Derived Factors for Human Health", "condition": "Hypertension and endothelial dysfunction", "details": "Significant reduction in systolic blood pressure and a decrease in oxidized LDL levels; these effects contribute to a cardioprotective profile, highlighting the therapeutic potential of quercetin aglycone extracted from Allium for the management of hypertension and improvement of vascular status in populations at cardiovascular risk.", "short_detail": "Significant reduction in systolic blood pressure and a decrease in oxidized LDL levels; these effects contribute to a cardio…", "domain": "Cardiovascular", "urls": ["https://doi.org/10.3390/antiox12020258"]}, {"metabolite": "Quercetin", "study_title": "Potential Clinical Benefits of Quercetin in the Early Stage of COVID-19: Results of a Second, Pilot, Randomized, Controlled and Open-Label Clinical Trial", "condition": "Early-stage SARS-CoV-2 infection", "details": "Administration of quercetin in a form enhanced for absorption could reduce the time required for viral clearance, attenuate the symptomatology associated with the disease, and increase the likelihood of an early and uncomplicated recovery.", "short_detail": "Administration of quercetin in a form enhanced for absorption could reduce the time required for viral clearance, attenuate …", "domain": "Infection / respiratory", "urls": ["https://doi.org/10.2147/IJGM.S318949"]}, {"metabolite": "Quercetin", "study_title": "The effect of 24-week continuous intake of quercetin-rich onion on age-related cognitive decline in healthy elderly people: a randomized, double-blind, placebo-controlled, parallel-group comparative clinical trial", "condition": "Cognitive decline associated with aging", "details": "Daily consumption scores on MMSE, emotional state and motivation, indicative of delayed cognitive decline, significantly improved.", "short_detail": "Daily consumption scores on MMSE, emotional state and motivation, indicative of delayed cognitive decline, significantly imp…", "domain": "Neurological / aging", "urls": ["https://doi.org/10.3164/jcbn.21-17"]}, {"metabolite": "Diallyl Trisulfide (DATS)", "study_title": "The Garlic Compound, Diallyl Trisulfide, Attenuates Benzo[a]Pyrene-Induced Precancerous Effect through Its Antioxidant Effect, AhR Inhibition, and Increased DNA Repair in Human Breast Epithelial Cells", "condition": "Cardiovascular diseases", "details": "Showed antioxidant and anti-inflammatory properties that contribute to cardiovascular health. Clinical studies suggest that its consumption may reduce the risk of heart disease by improving endothelial function and lowering blood pressure.", "short_detail": "Showed antioxidant and anti-inflammatory properties that contribute to cardiovascular health. Clinical studies suggest that …", "domain": "Cardiovascular", "urls": ["https://doi.org/10.3390/nu16020300"]}, {"metabolite": "Glucosinolates", "study_title": "Glucosinolates From Cruciferous Vegetables and Their Potential Role in Chronic Disease: Investigating the Preclinical and Clinical Evidence", "condition": "Neurological and psychiatric disorders", "details": "Sulforaphane, present in vegetables, showed neuroprotective and anti-inflammatory effects. Clinical studies indicate improvements in symptoms of neurological disorders, suggesting its therapeutic potential in these conditions.", "short_detail": "Sulforaphane, present in vegetables, showed neuroprotective and anti-inflammatory effects. Clinical studies indicate improve…", "domain": "Neurological / aging", "urls": ["https://doi.org/10.3389/fphar.2021.767975"]}, {"metabolite": "Allyl Methyl Sulfide (AMS)", "study_title": "Measurement of diallyl disulfide and allyl methyl sulfide emanating from human skin surface and influence of ingestion of grilled garlic", "condition": "bioavailability and metabolism of sulfur compounds", "details": "The dermal emission of AMS and DADS after garlic ingestion, demonstrating its absorption and metabolism in the human body.", "short_detail": "The dermal emission of AMS and DADS after garlic ingestion, demonstrating its absorption and metabolism in the human body.", "domain": "Other", "urls": ["https://doi.org/10.1038/s41598-019-57258-1"]}, {"metabolite": "Diallyl Sulfide (DAS)", "study_title": "Effects of the Garlic Components Diallyl Sulfide and Diallyl Disulfide on Arylamine N-Acetyltransferase Activity in Human Colon Tumour Cells", "condition": "Colon cancer", "details": "DAS showed inhibitory effects on human colon tumor cells, suggesting its potential as a chemopreventive agent. These results support the role of garlic and its compounds in cancer prevention.", "short_detail": "DAS showed inhibitory effects on human colon tumor cells, suggesting its potential as a chemopreventive agent. These results…", "domain": "Cancer / oncology", "urls": ["https://doi.org/10.1016/S0278-6915(98)00046-5"]}, {"metabolite": "Diallyl Disulfide (DADS)", "study_title": "Diallyl Disulfide: A Bioactive Garlic Compound with Anticancer Potential", "condition": "Gastrointestinal cancers", "details": "DADS has demonstrated anticancer activity in several studies, inhibiting tumor cell growth and promoting apoptosis.", "short_detail": "DADS has demonstrated anticancer activity in several studies, inhibiting tumor cell growth and promoting apoptosis.", "domain": "Cancer / oncology", "urls": ["https://doi.org/10.3389/fphar.2022.943967"]}];
+const matrix = [{"Metabolite": "Allicin", "Cancer / oncology": 1, "Cardiovascular": 1, "Immune / oxidative stress": 1, "Infection / respiratory": 1, "Metabolic / aging": 0, "Neurological / aging": 0, "Oral / mucosal": 2, "Other": 0}, {"Metabolite": "Ascorbic acid", "Cancer / oncology": 3, "Cardiovascular": 0, "Immune / oxidative stress": 1, "Infection / respiratory": 1, "Metabolic / aging": 0, "Neurological / aging": 0, "Oral / mucosal": 0, "Other": 0}, {"Metabolite": "Glycine", "Cancer / oncology": 1, "Cardiovascular": 0, "Immune / oxidative stress": 1, "Infection / respiratory": 0, "Metabolic / aging": 2, "Neurological / aging": 1, "Oral / mucosal": 0, "Other": 0}, {"Metabolite": "Quercetin", "Cancer / oncology": 0, "Cardiovascular": 1, "Immune / oxidative stress": 1, "Infection / respiratory": 1, "Metabolic / aging": 1, "Neurological / aging": 1, "Oral / mucosal": 0, "Other": 0}, {"Metabolite": "Phenolic compounds", "Cancer / oncology": 0, "Cardiovascular": 1, "Immune / oxidative stress": 1, "Infection / respiratory": 0, "Metabolic / aging": 0, "Neurological / aging": 1, "Oral / mucosal": 0, "Other": 0}, {"Metabolite": "Pyruvic acid", "Cancer / oncology": 0, "Cardiovascular": 1, "Immune / oxidative stress": 0, "Infection / respiratory": 2, "Metabolic / aging": 0, "Neurological / aging": 0, "Oral / mucosal": 0, "Other": 0}, {"Metabolite": "Cysteine", "Cancer / oncology": 1, "Cardiovascular": 0, "Immune / oxidative stress": 1, "Infection / respiratory": 0, "Metabolic / aging": 0, "Neurological / aging": 0, "Oral / mucosal": 0, "Other": 0}, {"Metabolite": "Glutathione", "Cancer / oncology": 1, "Cardiovascular": 0, "Immune / oxidative stress": 0, "Infection / respiratory": 1, "Metabolic / aging": 0, "Neurological / aging": 0, "Oral / mucosal": 0, "Other": 0}, {"Metabolite": "Allyl Methyl Sulfide (AMS)", "Cancer / oncology": 0, "Cardiovascular": 0, "Immune / oxidative stress": 0, "Infection / respiratory": 0, "Metabolic / aging": 0, "Neurological / aging": 0, "Oral / mucosal": 0, "Other": 1}, {"Metabolite": "Diallyl Disulfide (DADS)", "Cancer / oncology": 1, "Cardiovascular": 0, "Immune / oxidative stress": 0, "Infection / respiratory": 0, "Metabolic / aging": 0, "Neurological / aging": 0, "Oral / mucosal": 0, "Other": 0}, {"Metabolite": "Diallyl Sulfide (DAS)", "Cancer / oncology": 1, "Cardiovascular": 0, "Immune / oxidative stress": 0, "Infection / respiratory": 0, "Metabolic / aging": 0, "Neurological / aging": 0, "Oral / mucosal": 0, "Other": 0}, {"Metabolite": "Diallyl Trisulfide (DATS)", "Cancer / oncology": 0, "Cardiovascular": 1, "Immune / oxidative stress": 0, "Infection / respiratory": 0, "Metabolic / aging": 0, "Neurological / aging": 0, "Oral / mucosal": 0, "Other": 0}, {"Metabolite": "Glucosinolates", "Cancer / oncology": 0, "Cardiovascular": 0, "Immune / oxidative stress": 0, "Infection / respiratory": 0, "Metabolic / aging": 0, "Neurological / aging": 1, "Oral / mucosal": 0, "Other": 0}];
+const domains = ["Cancer / oncology", "Cardiovascular", "Immune / oxidative stress", "Infection / respiratory", "Metabolic / aging", "Neurological / aging", "Oral / mucosal", "Other"];
+
+const searchBox = document.getElementById('searchBox');
+const metaboliteFilter = document.getElementById('metaboliteFilter');
+const domainFilter = document.getElementById('domainFilter');
+
+function uniq(arr) {
+  return [...new Set(arr)].sort((a,b) => a.localeCompare(b));
+}
+
+const metabolites = uniq(studies.map(d => d.metabolite));
+metabolites.forEach(m => {
+  const opt = document.createElement('option');
+  opt.value = m; opt.textContent = m;
+  metaboliteFilter.appendChild(opt);
+});
+domains.forEach(d => {
+  const opt = document.createElement('option');
+  opt.value = d; opt.textContent = d;
+  domainFilter.appendChild(opt);
+});
+
+function passes(d) {
+  const q = searchBox.value.trim().toLowerCase();
+  const m = metaboliteFilter.value;
+  const dom = domainFilter.value;
+  const hay = [d.metabolite, d.study_title, d.condition, d.details, d.domain].join(' ').toLowerCase();
+  return (!q || hay.includes(q)) && (!m || d.metabolite === m) && (!dom || d.domain === dom);
+}
+
+function renderMatrix() {
+  const body = document.getElementById('matrixBody');
+  body.innerHTML = '';
+  matrix.forEach(row => {
+    const tr = document.createElement('tr');
+    const td0 = document.createElement('td');
+    td0.innerHTML = '<b>' + row.Metabolite + '</b>';
+    tr.appendChild(td0);
+    domains.forEach(dom => {
+      const v = row[dom] || 0;
+      const td = document.createElement('td');
+      const cls = v >= 4 ? 'n4' : v === 3 ? 'n3' : v === 2 ? 'n2' : v === 1 ? 'n1' : 'n0';
+      td.className = 'num ' + cls;
+      td.textContent = v;
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+}
+
+function renderCards() {
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = '';
+  const filtered = studies.filter(passes);
+
+  const metabMap = new Map();
+  filtered.forEach(s => {
+    if (!metabMap.has(s.metabolite)) metabMap.set(s.metabolite, []);
+    metabMap.get(s.metabolite).push(s);
+  });
+
+  [...metabMap.keys()].sort((a,b)=>a.localeCompare(b)).forEach(met => {
+    const items = metabMap.get(met);
+    const doms = uniq(items.map(x => x.domain));
+    const conds = items.slice(0,3).map(x => x.condition);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h3>${met}</h3>
+      <div class="study-count">${items.length} study record${items.length > 1 ? 's' : ''}</div>
+      <div class="chips">${doms.map(d => `<span class="chip">${d}</span>`).join('')}</div>
+      <div class="small"><b>Representative conditions:</b> ${conds.join('; ')}${items.length > 3 ? '…' : ''}</div>
+    `;
+    grid.appendChild(card);
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="small">No records match the current filters.</div>';
+  }
+}
+
+function renderAccordion() {
+  const box = document.getElementById('accordion');
+  box.innerHTML = '';
+  const filtered = studies.filter(passes);
+
+  const metabMap = new Map();
+  filtered.forEach(s => {
+    if (!metabMap.has(s.metabolite)) metabMap.set(s.metabolite, []);
+    metabMap.get(s.metabolite).push(s);
+  });
+
+  [...metabMap.keys()].sort((a,b)=>a.localeCompare(b)).forEach(met => {
+    const items = metabMap.get(met);
+    const domainsHere = uniq(items.map(x => x.domain)).map(d => `<span class="pill">${d}</span>`).join('');
+    const details = document.createElement('details');
+    details.innerHTML = `
+      <summary>${met} — ${items.length} study record${items.length > 1 ? 's' : ''}</summary>
+      <div style="margin-top:10px">${domainsHere}</div>
+      ${items.map(s => `
+        <div class="study">
+          <div><b>Condition:</b> ${s.condition}</div>
+          <div><b>Study title:</b> ${s.study_title}</div>
+          <div><b>Reported effect:</b> ${s.details}</div>
+          <div><b>Clinical domain:</b> ${s.domain}</div>
+          <div><b>URLs:</b> ${s.urls.map(u => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`).join(' | ')}</div>
+        </div>
+      `).join('')}
+    `;
+    box.appendChild(details);
+  });
+
+  if (!filtered.length) {
+    box.innerHTML = '<div class="small">No records match the current filters.</div>';
+  }
+}
+
+function renderTable() {
+  const body = document.getElementById('detailTable');
+  body.innerHTML = '';
+  const filtered = studies.filter(passes);
+
+  filtered.forEach(s => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><b>${s.metabolite}</b></td>
+      <td>${s.domain}</td>
+      <td>${s.condition}</td>
+      <td>${s.study_title}</td>
+      <td>${s.short_detail}</td>
+      <td>${s.urls.map(u => `<a href="${u}" target="_blank" rel="noopener noreferrer">link</a>`).join(' | ')}</td>
+    `;
+    body.appendChild(tr);
+  });
+
+  if (!filtered.length) {
+    body.innerHTML = '<tr><td colspan="6" class="small">No records match the current filters.</td></tr>';
+  }
+}
+
+function rerender() {
+  renderCards();
+  renderAccordion();
+  renderTable();
+}
+
+renderMatrix();
+rerender();
+
+searchBox.addEventListener('input', rerender);
+metaboliteFilter.addEventListener('change', rerender);
+domainFilter.addEventListener('change', rerender);
+</script>
+</body>
+</html>
